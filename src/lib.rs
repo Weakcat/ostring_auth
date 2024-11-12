@@ -1,7 +1,6 @@
 mod licore;
 mod liclient;
 
-
 pub use licore::LiCoreV1;
 pub use liclient::LiClient;
 
@@ -53,8 +52,9 @@ mod tests {
         let actoken = client.gen_actoken()?;
         
         // 使用激活令牌生成许可证
-        let license = client.gen_license(&actoken)?;
-        
+        let (key, _) = client.license_core.gen_actokey(&actoken)?;
+        let temp = format!("{}{}", key, actoken);
+        let license = client.gen_license(&temp)?;
         // 验证许可证
         assert!(client.verify_license(license)?);
         
@@ -67,14 +67,14 @@ mod tests {
         let client = create_test_client();
         
         // 测试空许可证
-        assert!(!client.verify_license("".to_string())?);
+        assert!(client.verify_license("".to_string()).is_err());
         
         // 测试无效的 base64
         assert!(client.verify_license("invalid-base64".to_string()).is_err());
         
         // 测试有效的 base64 但内容无效
         let invalid_license = BASE64_STANDARD.encode("invalid content");
-        assert!(!client.verify_license(invalid_license)?);
+        assert!(client.verify_license(invalid_license).is_err());
         
         Ok(())
     }
@@ -92,10 +92,12 @@ mod tests {
 
         // 生成许可证
         let actoken1 = client1.gen_actoken()?;
-        let license1 = client1.gen_license(&actoken1)?;
+        let (key1, _) = client1.license_core.gen_actokey(&actoken1)?;
+        let temp = format!("{}{}", key1, actoken1);
+        let license1 = client1.gen_license(&temp)?;
 
         // 验证使用不同密钥的客户端无法验证许可证
-        assert!(!client2.verify_license(license1)?);
+        assert!(client2.verify_license(license1).is_err());
         
         Ok(())
     }
@@ -113,7 +115,9 @@ mod tests {
             let client = client.clone();
             let handle = task::spawn(async move {
                 let actoken = client.gen_actoken()?;
-                let license = client.gen_license(&actoken)?;
+                let (key, _) = client.license_core.gen_actokey(&actoken)?;
+                let temp = format!("{}{}", key, actoken);
+                let license = client.gen_license(&temp)?;
                 client.verify_license(license)
             });
             handles.push(handle);
@@ -128,18 +132,19 @@ mod tests {
         Ok(())
     }
 
+
     // 测试错误情况的恢复
     #[test]
     fn test_error_recovery() -> Result<()> {
         let client = create_test_client();
-        
-        // 测试连续操作后的错误恢复
         let mut results = vec![];
         
         for _ in 0..5 {
             // 正常操作
             let actoken = client.gen_actoken()?;
-            let license = client.gen_license(&actoken)?;
+            let (key, _) = client.license_core.gen_actokey(&actoken)?;
+            let temp = format!("{}{}", key, actoken);
+            let license = client.gen_license(&temp)?;
             results.push(client.verify_license(license)?);
             
             // 错误操作
@@ -147,7 +152,9 @@ mod tests {
             
             // 继续正常操作
             let actoken = client.gen_actoken()?;
-            let license = client.gen_license(&actoken)?;
+            let (key, _) = client.license_core.gen_actokey(&actoken)?;
+            let temp = format!("{}{}", key, actoken);
+            let license = client.gen_license(&temp)?;
             results.push(client.verify_license(license)?);
         }
         

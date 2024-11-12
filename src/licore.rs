@@ -67,23 +67,22 @@ impl LiCoreV1 {
             token,
             sys_info: vec![],
         };
-        let payload = serde_json::to_string(&token_pack).unwrap();
-        let encode_payload = general_purpose::STANDARD.encode(&payload);
-        Ok(format!("{encode_payload}"))
+        let payload = serde_json::to_string(&token_pack)?;
+        let encode_payload = general_purpose::STANDARD.encode(payload.as_bytes());
+        Ok(encode_payload)
     }
 
-    pub fn gen_actokey(&self, raw_token: &str) -> (String, String) {
-        let decode_payload = general_purpose::STANDARD.decode(&raw_token).unwrap();
-        let json_payload = String::from_utf8(decode_payload).unwrap();
-        let actoken: TokenV1 = serde_json::from_str(&json_payload).unwrap();
-        println!("uuid:{}", actoken.uuid);
-        let decode_token = general_purpose::STANDARD.decode(&actoken.token).unwrap();
+    pub fn gen_actokey(&self, raw_token: &str) -> Result<(String, String)> {
+        let decode_payload = general_purpose::STANDARD.decode(&raw_token)?;
+        let json_payload = String::from_utf8(decode_payload)?;
+        let actoken: TokenV1 = serde_json::from_str(&json_payload)?;
+        let decode_token = general_purpose::STANDARD.decode(&actoken.token)?;
         let decode_token = aes_dec_ecb(&decode_token, &self.act_aes_key, self.act_aes_padding)
             .expect("Actokey Decryption failed");
-        let token_str = String::from_utf8(decode_token).unwrap();
+        let token_str = String::from_utf8(decode_token)?;
         const X25: crc::Crc<u16> = crc::Crc::<u16>::new(&crc::CRC_16_IBM_SDLC);
         let actokey = format!("{:04X}", X25.checksum(&token_str.as_bytes()));
-        (format!("{actokey}"), actoken.uuid)
+        Ok((format!("{actokey}"), actoken.uuid))
     }
 
     pub fn generate_lic(&self, uuid: String) -> Result<String> {
@@ -103,7 +102,7 @@ impl LiCoreV1 {
             token,
             sys_info: vec![],
         };
-        let payload = serde_json::to_string(&token_pack).unwrap();
+        let payload = serde_json::to_string(&token_pack)?;
         let encode_payload = general_purpose::STANDARD.encode(&payload);
         Ok(format!("{encode_payload}"))
     }

@@ -4,7 +4,7 @@ use super::licore::LiCoreV1;
 
 #[derive(Clone, Default, serde::Serialize, Debug)]
 pub struct LiClient {
-    license_core: LiCoreV1,
+    pub license_core: LiCoreV1,
     // actokey:String,
 }
 
@@ -21,7 +21,7 @@ impl LiClient {
     pub fn gen_license(&self, active_str: &str) -> Result<String> {
         let actokey = &active_str[0..4];
         let actoken = &active_str[4..];
-        let (key, token_uuid) = self.license_core.gen_actokey(&actoken);
+        let (key, token_uuid) = self.license_core.gen_actokey(&actoken)?;
         println!("actokey:{}", key);
         if actokey == key {
             let license = self.license_core.generate_lic(token_uuid)?;
