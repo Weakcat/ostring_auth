@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["weak_cat"]
 description = "A license authentication module"
 license = "MIT"
-repository = "https://github.com/Weakcat/OStringAuth.git"
+repository = "https://github.com/Weakcat/ostring_auth.git"
 
 [dependencies]
 anyhow = "1.0"
