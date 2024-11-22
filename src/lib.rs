@@ -53,8 +53,7 @@ mod tests {
         
         // 使用激活令牌生成许可证
         let (key, _) = client.license_core.gen_actokey(&actoken)?;
-        let temp = format!("{}{}", key, actoken);
-        let license = client.gen_license(&temp)?;
+        let license = client.gen_license(&actoken, &key)?;
         // 验证许可证
         assert!(client.verify_license(license)?);
         
@@ -93,8 +92,7 @@ mod tests {
         // 生成许可证
         let actoken1 = client1.gen_actoken()?;
         let (key1, _) = client1.license_core.gen_actokey(&actoken1)?;
-        let temp = format!("{}{}", key1, actoken1);
-        let license1 = client1.gen_license(&temp)?;
+        let license1 = client1.gen_license(&actoken1, &key1)?;
 
         // 验证使用不同密钥的客户端无法验证许可证
         assert!(client2.verify_license(license1).is_err());
@@ -116,8 +114,7 @@ mod tests {
             let handle = task::spawn(async move {
                 let actoken = client.gen_actoken()?;
                 let (key, _) = client.license_core.gen_actokey(&actoken)?;
-                let temp = format!("{}{}", key, actoken);
-                let license = client.gen_license(&temp)?;
+                let license = client.gen_license(&actoken, &key)?;
                 client.verify_license(license)
             });
             handles.push(handle);
@@ -143,8 +140,7 @@ mod tests {
             // 正常操作
             let actoken = client.gen_actoken()?;
             let (key, _) = client.license_core.gen_actokey(&actoken)?;
-            let temp = format!("{}{}", key, actoken);
-            let license = client.gen_license(&temp)?;
+            let license = client.gen_license(&actoken, &key)?;
             results.push(client.verify_license(license)?);
             
             // 错误操作
@@ -153,8 +149,7 @@ mod tests {
             // 继续正常操作
             let actoken = client.gen_actoken()?;
             let (key, _) = client.license_core.gen_actokey(&actoken)?;
-            let temp = format!("{}{}", key, actoken);
-            let license = client.gen_license(&temp)?;
+            let license = client.gen_license(&actoken, &key)?;
             results.push(client.verify_license(license)?);
         }
         

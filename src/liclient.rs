@@ -18,14 +18,10 @@ impl LiClient {
         self.license_core.gen_actoken()
     }
 
-    pub fn gen_license(&self, active_str: &str) -> Result<String> {
-        let actokey = &active_str[0..4];
-        let actoken = &active_str[4..];
+    pub fn gen_license(&self, actoken: &str, actokey: &str) -> Result<String> {
         let (key, token_uuid) = self.license_core.gen_actokey(&actoken)?;
-        println!("actokey:{}", key);
         if actokey == key {
             let license = self.license_core.generate_lic(token_uuid)?;
-            println!("license:{}", license);
             return Ok(license);
         }
 
