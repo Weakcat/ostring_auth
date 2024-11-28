@@ -1,6 +1,6 @@
 [package]
 name = "ostring_auth"
-version = "1.1.0"
+version = "1.1.1"
 edition = "2021"
 authors = ["weak_cat"]
 description = "A license authentication module"
@@ -19,7 +19,7 @@ soft-aes = "0.2.2"
 crc = "3.0"
 
 [target.'cfg(windows)'.dependencies]
-wmi = "0.14.0"
+wmi = "0.14.1"
 
 [dev-dependencies]
 tokio = { version = "1.0", features = ["full"] }
