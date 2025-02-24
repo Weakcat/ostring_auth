@@ -18,6 +18,11 @@ impl LiClient {
         self.license_core.gen_actoken()
     }
 
+    pub fn check_actoken(&self, actoken: &str, actokey: &str) -> Result<bool> {
+        let (key, _) = self.license_core.gen_actokey(&actoken)?;
+        return Ok(key == actokey);
+    }
+
     pub fn gen_license(&self, actoken: &str, actokey: &str) -> Result<String> {
         let (key, token_uuid) = self.license_core.gen_actokey(&actoken)?;
         if actokey == key {

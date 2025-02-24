@@ -158,4 +158,27 @@ mod tests {
         
         Ok(())
     }
+
+    // 测试激活令牌校验
+    #[test]
+    fn test_check_actoken() -> Result<()> {
+        let client = create_test_client();
+        
+        // 生成激活令牌
+        let actoken = client.gen_actoken()?;
+        
+        // 生成对应的actokey
+        let (key, _) = client.license_core.gen_actokey(&actoken)?;
+        
+        // 验证正确的actoken和actokey组合
+        assert!(client.check_actoken(&actoken, &key)?);
+        
+        // 验证错误的actokey
+        assert!(!client.check_actoken(&actoken, "wrong_key")?);
+        
+        // 验证错误的actoken
+        assert!(client.check_actoken("invalid_token", &key).is_err());
+        
+        Ok(())
+    }
 }
