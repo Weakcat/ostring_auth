@@ -18,7 +18,7 @@ impl LiClient {
         self.license_core.gen_actoken()
     }
 
-    pub fn check_actoken(&self, actoken: &str, actokey: &str) -> Result<bool> {
+    pub fn check_actokey(&self, actoken: &str, actokey: &str) -> Result<bool> {
         let (key, _) = self.license_core.gen_actokey(&actoken)?;
         return Ok(key == actokey);
     }
